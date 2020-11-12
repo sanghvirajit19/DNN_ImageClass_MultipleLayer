@@ -82,11 +82,10 @@ class NeuralNetwork:
         self.input = X_train
         self.w = {}
 
-
-        self.w[1] = np.random.randn(self.input.shape[0], model.get_neurons(1)) * np.sqrt(2 / model.get_neurons(1))
+        self.w[1] = np.random.randn(self.input.shape[0], model.get_neurons(1)) * np.sqrt(2.0 / self.input.shape[0])
 
         for i in range(self.layers-1):
-            self.w[i+2] = np.random.randn(model.get_neurons(i+1), model.get_neurons(i+2)) * np.sqrt(2 / model.get_neurons(i+2))
+            self.w[i+2] = np.random.randn(model.get_neurons(i+1), model.get_neurons(i+2)) * np.sqrt(2.0 / model.get_neurons(i+1))
 
         return self.w
 
@@ -173,7 +172,7 @@ class NeuralNetwork:
                   "Loss:" + str(self.cost) + " | "
                   "Accuracy: {} %".format(100 - np.mean(np.abs(self.output - self.y)) * 100))
 
-            if i % 100 == 0:
+            if i % 2 == 0:
 
                 self.accuracy.append(100 - np.mean(np.abs(self.output - self.y)) * 100)
                 self.Loss_list.append(self.cost)
@@ -225,6 +224,8 @@ class NeuralNetwork:
         self.output = self.a[self.layers]
 
         probablity = self.output
+
+        print(probablity)
 
         probablity[probablity <= threshold] = 0
         probablity[probablity > threshold] = 1
@@ -298,12 +299,12 @@ if __name__ == '__main__':
     X_test = X_test_flatten / 255
 
     model = NeuralNetwork()
-    model.add_layer(100, activation="sigmoid")
-    model.add_layer(50, activation="sigmoid")
+    model.add_layer(5, activation="relu")
+    model.add_layer(3, activation="relu")
     model.add_layer(1, activation="sigmoid")
 
     model.num_layers()
-    model.fit(X_train, y_train, epochs=15000, learning_rate=0.5)
+    model.fit(X_train, y_train, epochs=3000, learning_rate=0.5)
 
     y_predicted = model.predict(X_test, threshold=0.3)
 
