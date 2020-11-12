@@ -54,6 +54,9 @@ class NeuralNetwork:
         self.neurons = []
         self.activations = {}
         self.layers = 0
+        self.activation_layer_1 = []
+        self.activation_layer_2 = []
+        self.activation_layer_3 = []
 
     def add_layer(self, neurons, activation):
         self.neurons.append(neurons)
@@ -117,6 +120,15 @@ class NeuralNetwork:
         for i in range(0, self.layers):
             self.z[i+1] = np.dot(self.w[i+1].T, self.a[i]) + self.b[i+1]
             self.a[i+1] = eval(self.activations[i+1]).activation(self.z[i+1])
+
+            if i==0:
+                self.activation_layer_1.append(self.a[i+1].mean())
+
+            if i==1:
+                self.activation_layer_2.append(self.a[i+1].mean())
+
+            if i==2:
+                self.activation_layer_3.append(self.a[i+1].mean())
 
         self.output = self.a[self.layers]
 
@@ -221,6 +233,7 @@ class NeuralNetwork:
             self.z[i + 1] = np.dot(self.w[i + 1].T, self.a[i]) + self.b[i + 1]
             self.a[i + 1] = eval(self.activations[i + 1]).activation(self.z[i + 1])
 
+        print(self.a[self.layers].mean())
         self.output = self.a[self.layers]
 
         probablity = self.output
@@ -299,8 +312,8 @@ if __name__ == '__main__':
     X_test = X_test_flatten / 255
 
     model = NeuralNetwork()
-    model.add_layer(5, activation="relu")
-    model.add_layer(3, activation="relu")
+    model.add_layer(5, activation="sigmoid")
+    model.add_layer(3, activation="sigmoid")
     model.add_layer(1, activation="sigmoid")
 
     model.num_layers()
@@ -311,3 +324,5 @@ if __name__ == '__main__':
     model.confusion_matrix(y_test, y_predicted)
 
     model.evaluate(y_test, y_predicted)
+
+
