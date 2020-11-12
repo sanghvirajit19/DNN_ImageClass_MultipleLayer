@@ -58,6 +58,10 @@ class NeuralNetwork:
         self.activation_layer_2 = []
         self.activation_layer_3 = []
 
+        self.gradient_3 = []
+        self.gradient_2 = []
+        self.gradient_1 = []
+
     def add_layer(self, neurons, activation):
         self.neurons.append(neurons)
         self.layers += 1
@@ -85,10 +89,10 @@ class NeuralNetwork:
         self.input = X_train
         self.w = {}
 
-        self.w[1] = np.random.randn(self.input.shape[0], model.get_neurons(1)) * np.sqrt(2.0 / self.input.shape[0])
+        self.w[1] = np.random.randn(self.input.shape[0], model.get_neurons(1)) * np.sqrt(12.96 / self.input.shape[0])
 
         for i in range(self.layers-1):
-            self.w[i+2] = np.random.randn(model.get_neurons(i+1), model.get_neurons(i+2)) * np.sqrt(2.0 / model.get_neurons(i+1))
+            self.w[i+2] = np.random.randn(model.get_neurons(i+1), model.get_neurons(i+2)) * np.sqrt(12.96 / model.get_neurons(i+1))
 
         return self.w
 
@@ -309,8 +313,8 @@ if __name__ == '__main__':
     X_test = X_test_flatten / 255
 
     model = NeuralNetwork()
-    model.add_layer(5, activation="relu")
-    model.add_layer(3, activation="relu")
+    model.add_layer(5, activation="sigmoid")
+    model.add_layer(3, activation="sigmoid")
     model.add_layer(1, activation="sigmoid")
 
     model.num_layers()
