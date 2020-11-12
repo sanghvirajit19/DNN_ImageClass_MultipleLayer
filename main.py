@@ -233,12 +233,9 @@ class NeuralNetwork:
             self.z[i + 1] = np.dot(self.w[i + 1].T, self.a[i]) + self.b[i + 1]
             self.a[i + 1] = eval(self.activations[i + 1]).activation(self.z[i + 1])
 
-        print(self.a[self.layers].mean())
         self.output = self.a[self.layers]
 
         probablity = self.output
-
-        print(probablity)
 
         probablity[probablity <= threshold] = 0
         probablity[probablity > threshold] = 1
@@ -324,5 +321,20 @@ if __name__ == '__main__':
     model.confusion_matrix(y_test, y_predicted)
 
     model.evaluate(y_test, y_predicted)
+
+    layer_1 = model.activation_layer_1
+    layer_2 = model.activation_layer_2
+    layer_3 = model.activation_layer_3
+
+    x = np.arange(1, 3001)
+
+    plt.plot(x, layer_1, label="Layer 1")
+    plt.plot(x, layer_2, label="Layer 2")
+    plt.plot(x, layer_3, label="Layer 3")
+    plt.xlabel('epochs')
+    plt.ylabel('Activation Value')
+    plt.legend(loc='upper right')
+    plt.show()
+
 
 
