@@ -310,7 +310,7 @@ if __name__ == '__main__':
 
     model = NeuralNetwork()
     model.add_layer(5, activation="relu")
-    model.add_layer(3, activation="sigmoid")
+    model.add_layer(3, activation="relu")
     model.add_layer(1, activation="sigmoid")
 
     model.num_layers()
