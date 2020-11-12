@@ -309,7 +309,7 @@ if __name__ == '__main__':
     X_test = X_test_flatten / 255
 
     model = NeuralNetwork()
-    model.add_layer(5, activation="sigmoid")
+    model.add_layer(5, activation="relu")
     model.add_layer(3, activation="sigmoid")
     model.add_layer(1, activation="sigmoid")
 
