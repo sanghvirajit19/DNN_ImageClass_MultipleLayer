@@ -45,6 +45,84 @@ def str_to_class(str):
 def flatten(x):
     return x.reshape(x.shape[0], -1).T
 
+class Initialization:
+
+    @staticmethod
+    def Zeros(X_train, layers):
+        input = X_train
+        layers = layers
+        w = {}
+
+        w[1] = np.zeros((input.shape[0], model.get_neurons(1)))
+
+        for i in range(layers - 1):
+            w[i + 2] = np.zeros((model.get_neurons(i + 1), model.get_neurons(i + 2)))
+
+        b = {}
+
+        for i in range(layers):
+            b[i + 1] = np.zeros((model.get_neurons(i + 1), 1))
+
+        return w, b
+
+    @staticmethod
+    def Xavier(X_train, layers):
+        input = X_train
+        layers = layers
+        w = {}
+
+        w[1] = np.random.randn(input.shape[0], model.get_neurons(1)) * np.sqrt(1 / input.shape[0])
+
+        for i in range(layers - 1):
+            w[i + 2] = np.random.randn(model.get_neurons(i + 1), model.get_neurons(i + 2)) * np.sqrt(
+                1 / model.get_neurons(i + 1))
+
+        b = {}
+
+        for i in range(layers):
+            b[i + 1] = np.zeros((model.get_neurons(i + 1), 1))
+
+        return w, b
+
+    @staticmethod
+    def He(X_train, layers):
+        input = X_train
+        layers = layers
+        w = {}
+
+
+        w[1] = np.random.randn(input.shape[0], model.get_neurons(1)) * np.sqrt(2 / input.shape[0])
+
+        for i in range(layers - 1):
+            w[i + 2] = np.random.randn(model.get_neurons(i + 1), model.get_neurons(i + 2)) * np.sqrt(
+                2 / model.get_neurons(i + 1))
+
+        b = {}
+
+        for i in range(layers):
+            b[i + 1] = np.zeros((model.get_neurons(i + 1), 1))
+
+        return w, b
+
+    @staticmethod
+    def Kumar(X_train, layers):
+        input = X_train
+        layers = layers
+        w = {}
+
+        w[1] = np.random.randn(input.shape[0], model.get_neurons(1)) * np.sqrt(12.96 / input.shape[0])
+
+        for i in range(layers - 1):
+            w[i + 2] = np.random.randn(model.get_neurons(i + 1), model.get_neurons(i + 2)) * np.sqrt(
+                12.96 / model.get_neurons(i + 1))
+
+        b = {}
+
+        for i in range(layers):
+            b[i + 1] = np.zeros((model.get_neurons(i + 1), 1))
+
+        return w, b
+
 class NeuralNetwork:
 
     def __init__(self):
@@ -85,41 +163,28 @@ class NeuralNetwork:
         b = self.activations[num - 1]
         return a, b
 
-    def weight_init(self, X_train):
-        self.input = X_train
-        self.w = {}
-
-        self.w[1] = np.random.randn(self.input.shape[0], model.get_neurons(1)) * np.sqrt(12.96 / self.input.shape[0])
-
-        for i in range(self.layers-1):
-            self.w[i+2] = np.random.randn(model.get_neurons(i+1), model.get_neurons(i+2)) * np.sqrt(12.96 / model.get_neurons(i+1))
-
-        return self.w
-
-    def bias_init(self, X_train):
-        self.input = X_train
-        self.b = {}
-
-        for i in range(self.layers):
-            self.b[i+1] = np.zeros((model.get_neurons(i+1), 1))
-
-        return self.b
-
     def update_w_b(self, index, dw, db):
 
         self.w[index] -= self.learning_rate * dw
         self.b[index] -= self.learning_rate * db
 
-    def feedforward(self, i):
+    def feedforward(self, i, initialization):
 
         self.z = {}
         self.a = {}
 
         self.a = {0: self.input}
 
+        # initialize parameters
         if i == 0:
-            self.w = self.weight_init(X_train)
-            self.b = self.bias_init(X_train)
+            if initialization == "Xavier":
+                self.w, self.b = Initialization.Xavier(self.input, self.layers)
+            elif initialization == "He":
+                self.w, self.b = Initialization.He(self.input, self.layers)
+            elif initialization == "Kumar":
+                self.w, self.b = Initialization.Kumar(self.input, self.layers)
+            else:
+                self.w, self.b = Initialization.Zeros(self.input, self.layers)
 
         for i in range(0, self.layers):
             self.z[i+1] = np.dot(self.w[i+1].T, self.a[i]) + self.b[i+1]
@@ -166,23 +231,24 @@ class NeuralNetwork:
 
         return update_params
 
-    def propogation(self, i):
-        self.a, self.output, self.cost = self.feedforward(i)
+    def propogation(self, i, init):
+        self.a, self.output, self.cost = self.feedforward(i, init)
         self.update_params = self.backpropogation()
         return self.a, self.output, self.cost, self.update_params
 
-    def fit(self, X_train, y_train, epochs, learning_rate):
+    def fit(self, X_train, y_train, epochs, learning_rate, Initialization):
 
         self.input = X_train
         self.y = y_train
         self.m = X_train.shape[1]
         self.learning_rate = learning_rate
         self.epochs = epochs
+        self.init = Initialization
 
         print("Training........")
         for i in range(self.epochs):
 
-            self.a, self.output, self.cost, self.update_params = self.propogation(i)
+            self.a, self.output, self.cost, self.update_params = self.propogation(i, self.init)
 
             print("epochs:" + str(i) + " | "
                   "Loss:" + str(self.cost) + " | "
@@ -194,11 +260,11 @@ class NeuralNetwork:
                 self.Loss_list.append(self.cost)
                 self.epochs_list.append(i)
 
-        #Plotting accuracy
+        #accuracy Plot
         accuracy = np.array(self.accuracy)
         accuracy = accuracy.reshape(-1, 1)
 
-        #Plotting Loss
+        #Loss Plot
         Loss_array = np.array(self.Loss_list)
         y_loss = Loss_array.reshape(-1, 1)
         x_epochs = np.array(self.epochs_list).reshape(-1, 1)
@@ -318,7 +384,7 @@ if __name__ == '__main__':
     model.add_layer(1, activation="sigmoid")
 
     model.num_layers()
-    model.fit(X_train, y_train, epochs=3000, learning_rate=0.5)
+    model.fit(X_train, y_train, epochs=3000, learning_rate=0.5, Initialization='Xavier')
 
     y_predicted = model.predict(X_test, threshold=0.3)
 
@@ -326,19 +392,6 @@ if __name__ == '__main__':
 
     model.evaluate(y_test, y_predicted)
 
-    layer_1 = model.activation_layer_1
-    layer_2 = model.activation_layer_2
-    layer_3 = model.activation_layer_3
-
-    x = np.arange(1, 3001)
-
-    plt.plot(x, layer_1, label="Layer 1")
-    plt.plot(x, layer_2, label="Layer 2")
-    plt.plot(x, layer_3, label="Layer 3")
-    plt.xlabel('epochs')
-    plt.ylabel('Activation Value')
-    plt.legend(loc='upper right')
-    plt.show()
 
 
 
